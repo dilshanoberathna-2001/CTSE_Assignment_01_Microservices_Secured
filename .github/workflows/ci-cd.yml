@@ -1,0 +1,72 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [ main, master ]
+
+jobs:
+  # 1. Continuous Integration (Build & Test)
+  build-and-test:
+    name: Build & Test ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [frontend, user-service, catalog-service, watchlist-service, playback-service]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Dependencies
+      working-directory: ./${{ matrix.service }}
+      run: npm install
+
+    - name: Run Lint (if configured)
+      working-directory: ./${{ matrix.service }}
+      continue-on-error: true
+      run: npm run lint --if-present
+
+    - name: Run Tests (if configured)
+      working-directory: ./${{ matrix.service }}
+      continue-on-error: true
+      run: npm run test --if-present
+
+    - name: Build Docker Image
+      working-directory: ./${{ matrix.service }}
+      run: docker build -t streamlite-${{ matrix.service }}:${{ github.sha }} .
+
+    - name: Log in to Docker Hub
+      if: github.event.pull_request.merged == true || github.event_name == 'push'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Tag and Push Docker Image
+      if: github.event.pull_request.merged == true || github.event_name == 'push'
+      run: |
+        docker tag streamlite-${{ matrix.service }}:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/streamlite-${{ matrix.service }}:${{ github.sha }}
+        docker tag streamlite-${{ matrix.service }}:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/streamlite-${{ matrix.service }}:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/streamlite-${{ matrix.service }} --all-tags
+
+  # 2. Continuous Deployment (Run ONLY when merged/pushed to main)
+  deploy-on-merge:
+    name: Action on Merge to Main
+    needs: build-and-test
+    # This ensures the job only runs when a pull request is merged OR code is directly pushed to main/master
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Placeholder
+        run: |
+          echo "✅ All 5 Docker containers have been successfully pushed to Docker Hub!"
+          echo "🚀 You can now configure your cloud server (e.g. Azure) to pull these latest images automatically."

@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: streamlite_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - streamlite-network
+
+  user-service:
+    build: ./user-service
+    container_name: streamlite_user
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongodb
+    networks:
+      - streamlite-network
+
+  catalog-service:
+    build: ./catalog-service
+    container_name: streamlite_catalog
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - mongodb
+    networks:
+      - streamlite-network
+
+  watchlist-service:
+    build: ./watchlist-service
+    container_name: streamlite_watchlist
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - USER_SERVICE_URL=http://user-service:5001/api/users
+      - CATALOG_SERVICE_URL=http://catalog-service:5002/api/catalog
+    depends_on:
+      - mongodb
+      - user-service
+      - catalog-service
+    networks:
+      - streamlite-network
+
+  playback-service:
+    build: ./playback-service
+    container_name: streamlite_playback
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - USER_SERVICE_URL=http://user-service:5001/api/users
+      - CATALOG_SERVICE_URL=http://catalog-service:5002/api/catalog
+      - WATCHLIST_SERVICE_URL=http://watchlist-service:5003/api/watchlist
+    depends_on:
+      - mongodb
+      - user-service
+      - catalog-service
+      - watchlist-service
+    networks:
+      - streamlite-network
+
+  frontend:
+    build: ./frontend
+    container_name: streamlite_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_USER_SERVICE_URL=http://localhost:5001/api/users
+      - VITE_CATALOG_SERVICE_URL=http://localhost:5002/api/catalog
+      - VITE_WATCHLIST_SERVICE_URL=http://localhost:5003/api/watchlist
+      - VITE_PLAYBACK_SERVICE_URL=http://localhost:5004/api/playback
+    depends_on:
+      - user-service
+      - catalog-service
+      - watchlist-service
+      - playback-service
+    networks:
+      - streamlite-network
+
+networks:
+  streamlite-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
