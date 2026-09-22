@@ -73,7 +73,12 @@ exports.getProfile = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
+    if (req.user.userId.toString() !== req.params.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
     const user = await User.findById(req.params.id).select('-passwordHash');
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

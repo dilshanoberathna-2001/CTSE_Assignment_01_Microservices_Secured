@@ -3,19 +3,19 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    container_name: streamlite_mongodb
+    container_name: streamlite_secured_mongodb
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
-      - mongo-data:/data/db
+      - streamlite-secured-mongo-data:/data/db
     networks:
-      - streamlite-network
+      - streamlite-secured-network
 
   user-service:
     build: ./user-service
-    container_name: streamlite_user
+    container_name: streamlite_secured_user
     ports:
-      - "5001:5001"
+      - "5101:5001"
     environment:
       - PORT=5001
       - MONGO_URI=${MONGO_URI}
@@ -23,26 +23,26 @@ services:
     depends_on:
       - mongodb
     networks:
-      - streamlite-network
+      - streamlite-secured-network
 
   catalog-service:
     build: ./catalog-service
-    container_name: streamlite_catalog
+    container_name: streamlite_secured_catalog
     ports:
-      - "5002:5002"
+      - "5102:5002"
     environment:
       - PORT=5002
       - MONGO_URI=${MONGO_URI}
     depends_on:
       - mongodb
     networks:
-      - streamlite-network
+      - streamlite-secured-network
 
   watchlist-service:
     build: ./watchlist-service
-    container_name: streamlite_watchlist
+    container_name: streamlite_secured_watchlist
     ports:
-      - "5003:5003"
+      - "5103:5003"
     environment:
       - PORT=5003
       - MONGO_URI=${MONGO_URI}
@@ -54,13 +54,13 @@ services:
       - user-service
       - catalog-service
     networks:
-      - streamlite-network
+      - streamlite-secured-network
 
   playback-service:
     build: ./playback-service
-    container_name: streamlite_playback
+    container_name: streamlite_secured_playback
     ports:
-      - "5004:5004"
+      - "5104:5004"
     environment:
       - PORT=5004
       - MONGO_URI=${MONGO_URI}
@@ -74,29 +74,29 @@ services:
       - catalog-service
       - watchlist-service
     networks:
-      - streamlite-network
+      - streamlite-secured-network
 
   frontend:
     build: ./frontend
-    container_name: streamlite_frontend
+    container_name: streamlite_secured_frontend
     ports:
-      - "3000:3000"
+      - "3100:3000"
     environment:
-      - VITE_USER_SERVICE_URL=http://localhost:5001/api/users
-      - VITE_CATALOG_SERVICE_URL=http://localhost:5002/api/catalog
-      - VITE_WATCHLIST_SERVICE_URL=http://localhost:5003/api/watchlist
-      - VITE_PLAYBACK_SERVICE_URL=http://localhost:5004/api/playback
+      - VITE_USER_SERVICE_URL=http://localhost:5101/api/users
+      - VITE_CATALOG_SERVICE_URL=http://localhost:5102/api/catalog
+      - VITE_WATCHLIST_SERVICE_URL=http://localhost:5103/api/watchlist
+      - VITE_PLAYBACK_SERVICE_URL=http://localhost:5104/api/playback
     depends_on:
       - user-service
       - catalog-service
       - watchlist-service
       - playback-service
     networks:
-      - streamlite-network
+      - streamlite-secured-network
 
 networks:
-  streamlite-network:
+  streamlite-secured-network:
     driver: bridge
 
 volumes:
-  mongo-data:
+  streamlite-secured-mongo-data:
