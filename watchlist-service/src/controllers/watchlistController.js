@@ -89,6 +89,10 @@ exports.getUserWatchlist = async (req, res) => {
       return sendError(res, 400, 'INVALID_USER_ID', 'Invalid User ID');
     }
 
+    if (req.user.userId !== userId && req.user.role !== 'admin') {
+      return sendError(res, 403, 'FORBIDDEN', 'Not authorized to access this watchlist');
+    }
+
     const watchlist = await Watchlist.find({ userId });
     
     // In a more complex system, we might fetch movie details from Catalog Service here.
@@ -110,6 +114,10 @@ exports.checkIfSaved = async (req, res) => {
 
     if (!isNonEmptyString(movieId)) {
       return sendError(res, 400, 'INVALID_MOVIE_ID', 'Invalid Movie ID');
+    }
+
+    if (req.user.userId !== userId && req.user.role !== 'admin') {
+      return sendError(res, 403, 'FORBIDDEN', 'Not authorized to access this watchlist');
     }
 
     const entry = await Watchlist.findOne({ userId, movieId });
