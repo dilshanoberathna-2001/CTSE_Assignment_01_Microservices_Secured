@@ -96,7 +96,8 @@ router.get('/profile', authMiddleware, userController.getProfile);
  *       404:
  *         description: User not found
  */
-router.get('/:id', userController.getUserById);
+// router.get('/:id', userController.getUserById);
+router.get('/:id', authMiddleware, userController.getUserById);
 
 /**
  * @openapi
