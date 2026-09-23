@@ -36,7 +36,8 @@ exports.register = async (req, res) => {
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully', userId: newUser._id });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User service error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -65,7 +66,8 @@ exports.login = async (req, res) => {
 
     res.json({ token, userId: user._id, name: user.name, role: user.role });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User service error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -77,7 +79,8 @@ exports.getProfile = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User service error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -94,7 +97,8 @@ exports.getUserById = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User service error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -106,6 +110,7 @@ exports.validateUser = async (req, res) => {
     }
     res.json({ valid: true, userId: user._id });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('User service error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
