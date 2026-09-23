@@ -4,8 +4,6 @@ services:
   mongodb:
     image: mongo:latest
     container_name: streamlite_secured_mongodb
-    ports:
-      - "27018:27017"
     volumes:
       - streamlite-secured-mongo-data:/data/db
     networks:
