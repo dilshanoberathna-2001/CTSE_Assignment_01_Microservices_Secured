@@ -19,6 +19,15 @@ export const api = {
   // User endpoints
   login: (data) => axios.post(`${USER_API}/login`, data),
   register: (data) => axios.post(`${USER_API}/register`, data),
+
+  // OpenID Connect / Google login
+  startGoogleLogin: () => {
+    window.location.href = `${USER_API}/auth/oidc`;
+  },
+
+  exchangeOidcCode: (code) =>
+    axios.post(`${USER_API}/auth/oidc/exchange`, { code }),
+
   getProfile: () => axios.get(`${USER_API}/profile`, getAuthHeaders()),
 
   // Catalog endpoints

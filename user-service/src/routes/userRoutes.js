@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
+const oidcController = require('../controllers/oidcController');
 
 /**
  * @openapi
@@ -77,6 +78,39 @@ router.post('/login', userController.login);
  *         description: Unauthorized
  */
 router.get('/profile', authMiddleware, userController.getProfile);
+
+/**
+ * @openapi
+ * /api/users/auth/oidc:
+ *   get:
+ *     summary: Start Google OpenID Connect authentication
+ *     tags: [Authentication]
+ *     responses:
+ *       302:
+ *         description: Redirects to Google authentication
+ */
+router.get('/auth/oidc', oidcController.startLogin);
+
+/**
+ * @openapi
+ * /api/users/auth/oidc/callback:
+ *   get:
+ *     summary: Handle Google OpenID Connect callback
+ *     tags: [Authentication]
+ *     responses:
+ *       302:
+ *         description: Redirects back to the frontend
+ */
+router.get('/auth/oidc/callback', oidcController.callback);
+
+/**
+ * @openapi
+ * /api/users/auth/oidc/exchange:
+ *   post:
+ *     summary: Exchange one-time OIDC login code for StreamLite JWT
+ *     tags: [Authentication]
+ */
+router.post('/auth/oidc/exchange', oidcController.exchangeCode);
 
 /**
  * @openapi
