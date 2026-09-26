@@ -15,6 +15,8 @@ const historySchema = new mongoose.Schema({
   },
   progress: {
     type: Number, // percentage or seconds
+    min: 0,
+    max: 100,
     default: 0
   },
   status: {
