@@ -50,6 +50,16 @@ exports.saveHistory = async (req, res) => {
     const { movieId, progress } = req.body;
     const userId = req.user.userId;
 
+    if (
+      typeof progress !== 'number' ||
+      progress < 0 ||
+      progress > 100
+    ) {
+      return res.status(400).json({
+        message: 'Progress must be a number between 0 and 100'
+      });
+    }
+
     const history = await History.findOneAndUpdate(
       { userId, movieId },
       { progress, watchedAt: Date.now() },
