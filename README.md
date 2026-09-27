@@ -183,7 +183,7 @@ Scanner observations that were not demonstrated as concrete exploitable vulnerab
 | Original Project | https://github.com/Dulneth210229/CTSE_Assignment_01_Microservices |
 | Secured Project | https://github.com/dilshanoberathna-2001/CTSE_Assignment_01_Microservices_Secured |
 
-## 10. Assignment Deliverables
+<!-- ## 10. Assignment Deliverables
 
 This repository is part of the Secure Software Development assignment submission and should be submitted together with:
 
@@ -192,4 +192,4 @@ This repository is part of the Secure Software Development assignment submission
 - README file
 - GitHub repository links
 - YouTube demonstration link
-- Required project files / ZIP archive
+- Required project files / ZIP archive -->
