@@ -1,6 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const catalogController = require('../controllers/catalogController');
+const catalogController = require("../controllers/catalogController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 /**
  * @openapi
@@ -33,7 +34,7 @@ const catalogController = require('../controllers/catalogController');
  *       201:
  *         description: Movie added successfully
  */
-router.post('/', catalogController.addMovie);
+router.post("/", authMiddleware, catalogController.addMovie);
 
 /**
  * @openapi
@@ -45,7 +46,7 @@ router.post('/', catalogController.addMovie);
  *       200:
  *         description: List of all movies
  */
-router.get('/', catalogController.getAllMovies);
+router.get("/", catalogController.getAllMovies);
 
 /**
  * @openapi
@@ -63,7 +64,7 @@ router.get('/', catalogController.getAllMovies);
  *       200:
  *         description: Search results
  */
-router.get('/search', catalogController.searchMovies);
+router.get("/search", catalogController.searchMovies);
 
 /**
  * @openapi
@@ -83,7 +84,7 @@ router.get('/search', catalogController.searchMovies);
  *       404:
  *         description: Movie not found
  */
-router.get('/:movieId', catalogController.getMovieById);
+router.get("/:movieId", catalogController.getMovieById);
 
 /**
  * @openapi
@@ -103,6 +104,6 @@ router.get('/:movieId', catalogController.getMovieById);
  *       404:
  *         description: Movie not found
  */
-router.get('/:movieId/stream-info', catalogController.getStreamInfo);
+router.get("/:movieId/stream-info", catalogController.getStreamInfo);
 
 module.exports = router;
